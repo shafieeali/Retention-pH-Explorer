@@ -8,9 +8,9 @@
 <title>Retention and pH explorer: k, partition equilibrium and pKa in HPLC</title>
 <style>
 :root{--ink:#1f2d3a;--navy:#163e63;--steel:#326b9e;--muted:#566676;--rule:#cfdbe6;--panel:#f1f5f9;--bg:#ffffff;--grid:#e6edf3;--sta:#d9822b;--film:rgba(217,130,43,.22);--support:#c9d1da;--warn:#9a5f12;--good:#2f7d4f;--alert:#b23a48;
---c0:#1f6fb0;--c1:#c0392b;--c2:#22806b;--c3:#7a4fc4;--c4:#b8601a;--c5:#8a5a44;--c6:#c2185b;--c7:#0f8fa8;--c8:#556b2f;color-scheme:light}
+--eqr:#c62828;--c0:#1f6fb0;--c1:#c0392b;--c2:#22806b;--c3:#7a4fc4;--c4:#b8601a;--c5:#8a5a44;--c6:#c2185b;--c7:#0f8fa8;--c8:#556b2f;color-scheme:light}
 @media (prefers-color-scheme:dark){:root{--ink:#e3eaf1;--navy:#a9cdf0;--steel:#7fb0dc;--muted:#9fb0c0;--rule:#34475a;--panel:#17232f;--bg:#0f1820;--grid:#1f2e3b;--sta:#f0a85a;--film:rgba(240,168,90,.18);--support:#2a3947;--warn:#e7b066;--good:#74cf98;--alert:#f0828f;
---c0:#7fb6ee;--c1:#f08a7e;--c2:#5cc4a8;--c3:#b99cf5;--c4:#eba45f;--c5:#d1a58f;--c6:#f48fb1;--c7:#5fd0e6;--c8:#b5cf7a;color-scheme:dark}}
+--eqr:#ff8a80;--c0:#7fb6ee;--c1:#f08a7e;--c2:#5cc4a8;--c3:#b99cf5;--c4:#eba45f;--c5:#d1a58f;--c6:#f48fb1;--c7:#5fd0e6;--c8:#b5cf7a;color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Arial,Helvetica,sans-serif;overflow:hidden;-webkit-text-size-adjust:100%}
@@ -18,7 +18,13 @@ button,select,input{font:inherit}
 :focus-visible{outline:2px solid var(--steel);outline-offset:2px}
 .app{display:flex;flex-direction:column;height:100vh;height:100dvh;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}
 header{display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--rule);flex:0 0 auto}
-header h1{font-size:1.02rem;margin:0;color:var(--navy);flex:1 1 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header .ttl{flex:1 1 auto;min-width:0}
+header{flex-wrap:wrap;row-gap:0}
+header .brand{flex:0 0 100%;font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.01em;margin-bottom:1px}
+header h1{font-size:1.02rem;margin:0;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eq{font-family:"Times New Roman",Times,serif;font-size:.95rem;color:var(--muted);margin:3px 0 0;line-height:1.35}
+.eq .r{color:var(--eqr);font-weight:700}
+.eq .n{font-family:Arial,Helvetica,sans-serif;font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
 @media (max-width:480px){header h1 .long{display:none}}
 .btn{border:1px solid var(--steel);border-radius:6px;background:transparent;color:var(--navy);padding:5px 10px;cursor:pointer;font-size:.88rem}
 .btn:hover{background:var(--panel)}
@@ -92,7 +98,8 @@ dialog::backdrop{background:rgba(10,20,30,.45)}
 <body>
 <div class="app">
   <header>
-    <h1>Retention &amp; pH<span class="long"> explorer (reversed-phase HPLC)</span></h1>
+    <div class="brand">Interactive Chemistry · Ali Shafiee · University of Florida</div>
+    <div class="ttl"><h1>Retention &amp; pH<span class="long"> explorer (reversed-phase HPLC)</span></h1></div>
     <button type="button" class="btn" id="guideBtn">Guide</button>
   </header>
   <div class="main">
@@ -132,6 +139,7 @@ dialog::backdrop{background:rgba(10,20,30,.45)}
 <dialog id="guide" aria-labelledby="gTitle">
   <div class="dhead"><h2 id="gTitle">Guide</h2><button type="button" class="btn" id="guideClose">Close</button></div>
   <div class="dbody">
+    <p class="note" style="margin-top:10px">Interactive Chemistry · Ali Shafiee · University of Florida</p>
     <h3>What this tool shows</h3>
     <p>In reversed-phase HPLC, every molecule constantly moves back and forth between the polar mobile phase (water plus an organic solvent) and the nonpolar C18 stationary phase. It only travels down the column while it is in the mobile phase. The retention factor k is the ratio of the time spent in the stationary phase to the time spent in the mobile phase, so a molecule spends a fraction k/(1 + k) of its time stuck, and t<sub>R</sub> = t<sub>M</sub>(1 + k).</p>
     <h3>Why pH matters</h3>
@@ -321,10 +329,37 @@ function capText(){
   $('cap').innerHTML='<p style="margin:0 0 6px"><b>What you’re seeing.</b> Filled dots are neutral molecules, rings with a sign are charged ones. Molecules move only while they are in the mobile phase. Neutral molecules slip into the nonpolar C18 layer easily; charged ones rarely do, so a compound that is mostly charged at this pH races ahead. Each molecule keeps switching between its forms, so what matters is the fraction of time it spends neutral, set by the pH and its pKa. The tracks at the top show each compound’s average speed, which sets its elution order.</p>'+lines;
 }
 $('capBtn').addEventListener('click',function(){var c=$('cap'),on=!c.classList.contains('on');c.classList.toggle('on',on);this.setAttribute('aria-expanded',on?'true':'false');this.textContent=on?'Hide':'Explain';});
+/* ================= equations under each setting ================= */
+function R_(x){return '<span class="r">'+x+'</span>';}function N_(x){return '<span class="n">'+x+'</span>';}
+function firstOf(pred){var L=selected().filter(pred);return L.length?L[0]:null;}
+function eqFor(id){
+  var c,k,f,cc=COMP[COMP.length-1];
+  switch(id){
+    case 'pH':
+      var ion=selected().filter(function(x){return x.type!=='neutral';});
+      return 'acid: f<sub>neutral</sub> = 1/(1 + 10<sup>'+R_('pH')+' − pKa</sup>) &nbsp; base: 1/(1 + 10<sup>pKa − '+R_('pH')+'</sup>)<br>k = f<sub>neutral</sub>·k<sub>neutral</sub> + (1 − f<sub>neutral</sub>)·k<sub>ion</sub><br>'
+        +N_(ion.length?ion.map(function(x){return x.s+': '+Math.round(fNeutral(x,ST.pH)*100)+'% neutral, k = '+sig(kOf(x,ST.pH),2);}).join(' · '):'No acids or bases selected, so pH changes nothing.');
+    case 'phi':
+      c=firstOf(function(){return true;});if(!c)return 'log k = log k<sub>w</sub> − S·'+R_('φ');
+      return 'log k<sub>neutral</sub> = log k<sub>w</sub> − S·'+R_('φ')+'<br>'+N_(c.s+': '+c.lkw.toFixed(1)+' − '+c.S.toFixed(1)+' × '+(ST.phi/100).toFixed(2)+' = '+(c.lkw-c.S*ST.phi/100).toFixed(2)+' → k<sub>neutral</sub> = '+sig(kN(c),2));
+    case 'N':
+      c=R.sorted[0];if(!c)return 'σ = t<sub>R</sub>/√'+R_('N');
+      return 'σ = t<sub>R</sub>/√'+R_('N')+' &nbsp; W = 4σ<br>'+N_(c.c.s+': '+c.tR.toFixed(2)+' min / √'+Math.round(ST.N).toLocaleString('en-US')+' = '+(c.s).toFixed(3)+' min; W = '+(4*c.s).toFixed(3)+' min');
+    case 'tM':
+      c=R.sorted[R.sorted.length-1];if(!c)return 't<sub>R</sub> = '+R_('t<sub>M</sub>')+'(1 + k)';
+      return 't<sub>R</sub> = '+R_('t<sub>M</sub>')+'(1 + k)<br>'+N_(c.c.s+': '+ST.tM.toFixed(1)+' × (1 + '+sig(c.k,3)+') = '+c.tR.toFixed(2)+' min');
+    case 'cpKa':
+      f=fNeutral(cc,ST.pH);return (cc.type==='acid'?'f<sub>neutral</sub> = 1/(1 + 10<sup>pH − '+R_('pKa')+'</sup>)':'f<sub>neutral</sub> = 1/(1 + 10<sup>'+R_('pKa')+' − pH</sup>)')+'<br>'+N_('= 1/(1 + 10<sup>'+(cc.type==='acid'?(ST.pH-cc.pKa):(cc.pKa-ST.pH)).toFixed(1).replace('-','−')+'</sup>) = '+Math.round(f*100)+'% neutral');
+    case 'clkw':
+      return 'log k<sub>neutral</sub> = '+R_('log k<sub>w</sub>')+' − S·φ<br>'+N_('= '+cc.lkw.toFixed(1)+' − '+cc.S.toFixed(1)+' × '+(ST.phi/100).toFixed(2)+' → k = '+sig(kOf(cc,ST.pH),2)+' at this pH');
+  }
+  return '';
+}
+function refreshEq(){document.querySelectorAll('.eq[data-eq]').forEach(function(e){e.innerHTML=eqFor(e.getAttribute('data-eq'));});}
 /* ================= settings panel ================= */
 var pgroup='mp',ctl={},MQall=window.matchMedia('(min-width:900px) and (min-height:640px)');
 function slider(box,o){
-  var row=document.createElement('div');row.className='row';row.innerHTML='<div class="top"><label for="s_'+o.id+'">'+o.label+'</label></div>';
+  var row=document.createElement('div');row.className='row';row.innerHTML='<div class="top"><label for="s_'+o.id+'">'+o.label+'</label></div><div class="eq" data-eq="'+o.id+'"></div>';
   var vb=document.createElement('button');vb.type='button';vb.className='val';row.querySelector('.top').appendChild(vb);
   var inp=document.createElement('input');inp.type='range';inp.id='s_'+o.id;inp.min=o.min;inp.max=o.max;inp.step=o.step;row.appendChild(inp);
   function show(){var v=o.get();vb.textContent=o.fmt(v);inp.value=v;inp.setAttribute('aria-valuetext',o.fmt(v));}
@@ -365,7 +400,7 @@ function buildPanel(){
   else renderGroup(pgroup,box);
   var rb=document.createElement('button');rb.type='button';rb.className='btn';rb.style.marginTop='10px';rb.textContent='Reset to defaults';
   rb.addEventListener('click',function(){ST=JSON.parse(JSON.stringify(DEF));COMP.forEach(function(c){c.on=['benzoic','nitrophenol','aniline','toluene'].indexOf(c.id)>=0;});var cc=COMP[COMP.length-1];cc.type='acid';cc.pKa=6;cc.lkw=2.4;buildPanel();update(true);});box.appendChild(rb);
-  updateWarn();
+  updateWarn();if(R)refreshEq();
 }
 function updateWarn(){var w=$('phWarn');if(!w)return;w.textContent=ST.pH<2?'Below pH 2 the bonded C18 phase is gradually stripped from silica columns.':(ST.pH>8?'Above pH 8 ordinary silica columns dissolve; you’d need a hybrid or polymer column.':'');}
 function setFold(c){var r=document.querySelector('.right');r.classList.toggle('collapsed',c);var f=$('fold');f.textContent=c?'▴':'▾';f.setAttribute('aria-expanded',c?'false':'true');}
@@ -378,7 +413,7 @@ function setView(v){view=v;document.querySelectorAll('.seg [data-view]').forEach
   ['chrom','kph','zoom','nums'].forEach(function(n){$('v-'+n).classList.toggle('on',n===v);});
   if(v==='zoom'){if(sizeMicro()){microInit();microDraw();}capText();}drawChrom();drawKpH();drawNums();}
 document.querySelectorAll('.seg [data-view]').forEach(function(b){b.addEventListener('click',function(){setView(b.getAttribute('data-view'));});});
-function update(reinit){compute();updateLive();drawChrom();drawKpH();drawNums();updateWarn();if(view==='zoom'){if(reinit&&sizeMicro())microInit();capText();if(!running)microDraw();}}
+function update(reinit){compute();updateLive();refreshEq();drawChrom();drawKpH();drawNums();updateWarn();if(view==='zoom'){if(reinit&&sizeMicro())microInit();capText();if(!running)microDraw();}}
 var running=!window.matchMedia('(prefers-reduced-motion: reduce)').matches,last=0;
 function loop(ts){if(!running)return;var dt=last?Math.min(0.05,(ts-last)/1000):0;last=ts;if(!document.hidden&&view==='zoom'){microStep(dt);microDraw();}requestAnimationFrame(loop);}
 function setPlay(on){running=on;$('play').textContent=on?'Pause':'Play';$('play').setAttribute('aria-pressed',on?'false':'true');if(on){last=0;requestAnimationFrame(loop);}}

@@ -8,9 +8,9 @@
 <title>Retention and pH explorer: k, partition equilibrium and pKa in HPLC</title>
 <style>
 :root{--ink:#1f2d3a;--navy:#163e63;--steel:#326b9e;--muted:#566676;--rule:#cfdbe6;--panel:#f1f5f9;--bg:#ffffff;--grid:#e6edf3;--sta:#d9822b;--film:rgba(217,130,43,.22);--support:#c9d1da;--warn:#9a5f12;--good:#2f7d4f;--alert:#b23a48;
---eqr:#c62828;--c0:#1f6fb0;--c1:#c0392b;--c2:#22806b;--c3:#7a4fc4;--c4:#b8601a;--c5:#8a5a44;--c6:#c2185b;--c7:#0f8fa8;--c8:#556b2f;color-scheme:light}
+--eqr:#c62828;--c0:#1f6fb0;--c1:#9a7b00;--c2:#22806b;--c3:#7a4fc4;--c4:#b8601a;--c5:#8a5a44;--c6:#c2185b;--c7:#0f8fa8;--c8:#556b2f;color-scheme:light}
 @media (prefers-color-scheme:dark){:root{--ink:#e3eaf1;--navy:#a9cdf0;--steel:#7fb0dc;--muted:#9fb0c0;--rule:#34475a;--panel:#17232f;--bg:#0f1820;--grid:#1f2e3b;--sta:#f0a85a;--film:rgba(240,168,90,.18);--support:#2a3947;--warn:#e7b066;--good:#74cf98;--alert:#f0828f;
---eqr:#ff8a80;--c0:#7fb6ee;--c1:#f08a7e;--c2:#5cc4a8;--c3:#b99cf5;--c4:#eba45f;--c5:#d1a58f;--c6:#f48fb1;--c7:#5fd0e6;--c8:#b5cf7a;color-scheme:dark}}
+--eqr:#ff8a80;--c0:#7fb6ee;--c1:#e0c25a;--c2:#5cc4a8;--c3:#b99cf5;--c4:#eba45f;--c5:#d1a58f;--c6:#f48fb1;--c7:#5fd0e6;--c8:#b5cf7a;color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Arial,Helvetica,sans-serif;overflow:hidden;-webkit-text-size-adjust:100%}
@@ -81,6 +81,12 @@ svg.full{width:100%;height:100%;display:block}
 .comp input{width:20px;height:20px;accent-color:var(--steel);flex:0 0 auto}
 .comp .nm{flex:1 1 auto}
 .comp .meta{font-size:.76rem;color:var(--muted);display:block}
+.forms{display:flex;gap:6px 14px;overflow-x:auto;padding:4px 8px 2px;flex:0 0 auto;scrollbar-width:none;border-bottom:1px solid var(--rule)}
+.forms::-webkit-scrollbar{display:none}
+.forms .fm{display:flex;flex-direction:column;align-items:center;flex:0 0 auto;font-size:.72rem;line-height:1.2;text-align:center}
+.forms .fm b{font-size:.74rem}
+.forms .fm span{color:var(--muted);font-variant-numeric:tabular-nums}
+.thumbs{display:flex;align-items:center;gap:4px;margin-top:3px;color:var(--muted);font-size:.8rem}
 .ghead{display:flex;justify-content:space-between;align-items:baseline;margin:14px 0 0;padding-top:8px;border-top:1px solid var(--rule)}
 .ghead:first-child{border-top:0;margin-top:4px}
 .ghead h2{font-size:.98rem;margin:0;color:var(--navy)}
@@ -116,9 +122,10 @@ dialog::backdrop{background:rgba(10,20,30,.45)}
       </div>
       <div class="stage" id="stage">
         <div class="view on" id="v-chrom"><svg class="full" id="chrom" role="img" aria-label="Simulated chromatogram of the selected compounds"></svg></div>
-        <div class="view" id="v-kph"><svg class="full" id="kph" role="img" aria-label="Retention factor against mobile phase pH for each compound. Drag to change the pH."></svg><div class="hint" id="kphHint">Drag on the graph to change the pH</div></div>
+        <div class="view" id="v-kph"><div class="forms" id="formsK" aria-label="Structure of each compound at this pH"></div><svg class="full" id="kph" role="img" aria-label="Retention factor against mobile phase pH for each compound. Drag to change the pH."></svg><div class="hint" id="kphHint">Drag on the graph to change the pH</div></div>
         <div class="view" id="v-zoom">
           <div class="mtop"><span style="font-size:.8rem;color:var(--muted)">Molecules at the C18 surface and the race down the column</span><span class="sp"></span><button type="button" class="btn" id="capBtn" aria-expanded="false">Explain</button><button type="button" class="btn" id="play" aria-pressed="false">Pause</button></div>
+          <div class="forms" id="formsZ" aria-label="Structure of each compound at this pH"></div>
           <div class="mwrap"><canvas id="cm" role="img" aria-label="Animated close-up of molecules moving between the mobile phase and the C18 stationary phase"></canvas><div class="cap" id="cap"></div></div>
         </div>
         <div class="view nums" id="v-nums"></div>
@@ -147,6 +154,8 @@ dialog::backdrop{background:rgba(10,20,30,.45)}
     <p>So acids are retained at low pH and elute early at high pH; bases do the opposite. The biggest change happens within about one pH unit of the pKa. Neutral compounds don’t care about pH. Changing pH can therefore move peaks a lot and even change their order, which makes it a powerful way to improve a separation.</p>
     <h3>Is the equilibrium the same everywhere in the column?</h3>
     <p>Yes, in a run with constant mobile phase composition. The pH is the same throughout the column, and each molecule switches between its charged and neutral forms, and between the two phases, extremely quickly. Its retention reflects the average over all those switches. Retention changes along the run only if the mobile phase composition changes (gradient elution).</p>
+    <h3>Structures</h3>
+    <p>Each compound is drawn as a line-angle (skeletal) structure in the form it mostly has at the current pH. Charged groups are shown in red, so as you drag the pH past a pKa you can watch –COOH turn into –COO⁻, or –NH₂ into –NH₃⁺, and see the peak move at the same time.</p>
     <h3>The organic solvent</h3>
     <p>More acetonitrile makes the mobile phase less polar and a stronger eluent, so every compound spends less time in the C18 layer. We use log k = log k<sub>w</sub> − S·φ, where φ is the volume fraction of acetonitrile and k<sub>w</sub> is k in pure water.</p>
     <h3>How to use it</h3>
@@ -206,12 +215,66 @@ var NS='http://www.w3.org/2000/svg';
 function el(tag,a,txt){var e=document.createElementNS(NS,tag);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e;}
 function niceStep(span,n){var raw=span/n,p=Math.pow(10,Math.floor(Math.log10(raw))),m=raw/p;return (m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*p;}
 function gN(t,c,s){var z=(t-c)/s;return Math.exp(-0.5*z*z)/(s*2.5066283);}
+
+/* ================= line-angle structures (neutral and charged forms) ================= */
+var HEX=[[0,1],[0.866,0.5],[0.866,-0.5],[0,-1],[-0.866,-0.5],[-0.866,0.5]];
+function ringAtoms(lbl){return HEX.map(function(p,i){return {x:p[0],y:p[1],l:(lbl&&lbl[i])||''};});}
+function ringBonds(){return [[0,1,2,0,0],[1,2,1],[2,3,2,0,0],[3,4,1],[4,5,2,0,0],[5,0,1]];}
+var MOLDEF={
+  benzoic:function(){var a=ringAtoms();a.push({x:0,y:2},{x:-0.866,y:2.5,l:'O'},{x:0.866,y:2.5,l:'OH',li:'O⁻'});return {a:a,b:ringBonds().concat([[0,6,1],[6,7,2],[6,8,1]]),grp:['–COOH','–COO⁻']};},
+  phenol:function(){var a=ringAtoms();a.push({x:0,y:2,l:'OH',li:'O⁻'});return {a:a,b:ringBonds().concat([[0,6,1]]),grp:['–OH','–O⁻']};},
+  nitrophenol:function(){var a=ringAtoms();a.push({x:0,y:2,l:'OH',li:'O⁻'},{x:0,y:-2,l:'NO₂'});return {a:a,b:ringBonds().concat([[0,6,1],[3,7,1]]),grp:['–OH','–O⁻']};},
+  toluene:function(){var a=ringAtoms();a.push({x:0,y:2});return {a:a,b:ringBonds().concat([[0,6,1]]),grp:null};},
+  aniline:function(){var a=ringAtoms();a.push({x:0,y:2,l:'NH₂',li:'NH₃⁺'});return {a:a,b:ringBonds().concat([[0,6,1]]),grp:['–NH₂','–NH₃⁺']};},
+  pyridine:function(){var a=ringAtoms(['N']);a[0].li='N⁺';a.push({x:0,y:2,l:'H',ionOnly:true});return {a:a,b:ringBonds().concat([[0,6,1,null,null,true]]),grp:['N:','N⁺–H']};},
+  ibuprofen:function(){var a=ringAtoms();a.push({x:0,y:2},{x:-0.866,y:2.5},{x:0.866,y:2.5},{x:0.866,y:3.5,l:'O'},{x:1.732,y:2,l:'OH',li:'O⁻'},{x:0,y:-2},{x:0.866,y:-2.5},{x:0.866,y:-3.5},{x:1.732,y:-2});
+    return {a:a,b:ringBonds().concat([[0,6,1],[6,7,1],[6,8,1],[8,9,2],[8,10,1],[3,11,1],[11,12,1],[12,13,1],[12,14,1]]),grp:['–COOH','–COO⁻']};},
+  caffeine:function(){var a=[{x:0,y:1},{x:0.866,y:0.5},{x:0.866,y:-0.5},{x:0,y:-1,l:'N'},{x:-0.866,y:-0.5},{x:-0.866,y:0.5,l:'N'},{x:0,y:2,l:'O'},{x:-1.732,y:1},{x:-1.732,y:-1,l:'O'},{x:0,y:-2},{x:1.817,y:-0.809,l:'N'},{x:2.405,y:0},{x:1.817,y:0.809,l:'N'},{x:2.126,y:1.76}];
+    return {a:a,b:[[0,1,1],[1,2,2,0,0],[2,3,1],[3,4,1],[4,5,1],[5,0,1],[0,6,2],[5,7,1],[4,8,2],[3,9,1],[2,10,1],[10,11,2,1.554,0],[11,12,1],[12,1,1],[12,13,1]],grp:null};},
+  custom:function(c){if(c.type==='acid')return {a:[{x:0,y:0,l:'R'},{x:0.866,y:0.5},{x:0.866,y:1.5,l:'O'},{x:1.732,y:0,l:'OH',li:'O⁻'}],b:[[0,1,1],[1,2,2],[1,3,1]],grp:['–COOH','–COO⁻']};
+    if(c.type==='base')return {a:[{x:0,y:0,l:'R'},{x:0.866,y:0.5,l:'NH₂',li:'NH₃⁺'}],b:[[0,1,1]],grp:['–NH₂','–NH₃⁺']};return {a:[{x:0,y:0,l:'R'}],b:[],grp:null};}
+};
+var MOLC={};
+function molDef(c){var k=c.id==='custom'?'custom|'+c.type:c.id;if(!MOLC[k])MOLC[k]=MOLDEF[c.id](c);return MOLC[k];}
+/* ion = draw the charged form; s = bond length in px; returns {w,h,svg} with coordinates starting at 0,0 */
+function molSVG(c,ion,s,col){
+  var d=molDef(c),A=d.a.filter(function(x){return ion||!x.ionOnly;}),pad=0.75,fs=Math.max(9,0.66*s);
+  var xs=A.map(function(a){return a.x;}),ys=A.map(function(a){return a.y;});
+  var x0=Math.min.apply(null,xs)-pad,x1=Math.max.apply(null,xs)+pad,y0=Math.min.apply(null,ys)-pad,y1=Math.max.apply(null,ys)+pad;
+  function P(a){return [(a.x-x0)*s,(y1-a.y)*s];}
+  var out='';
+  d.b.forEach(function(b){
+    if(b[5]&&!ion)return;
+    var A1=d.a[b[0]],A2=d.a[b[1]],p1=P(A1),p2=P(A2),dx=p2[0]-p1[0],dy=p2[1]-p1[1],L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,nx=-uy,ny=ux;
+    var l1=(ion&&A1.li)?A1.li:A1.l,l2=(ion&&A2.li)?A2.li:A2.l,c1=l1?0.42*s:0,c2=l2?0.42*s:0;
+    var q1=[p1[0]+ux*c1,p1[1]+uy*c1],q2=[p2[0]-ux*c2,p2[1]-uy*c2];
+    function ln(a,b2){out+='<line x1="'+a[0].toFixed(1)+'" y1="'+a[1].toFixed(1)+'" x2="'+b2[0].toFixed(1)+'" y2="'+b2[1].toFixed(1)+'"/>';}
+    var ringD=b[2]===2&&b.length>3&&b[3]!==undefined&&b[3]!==null;
+    if(b[2]===2&&!ringD){var o=0.11*s;ln([q1[0]+nx*o,q1[1]+ny*o],[q2[0]+nx*o,q2[1]+ny*o]);ln([q1[0]-nx*o,q1[1]-ny*o],[q2[0]-nx*o,q2[1]-ny*o]);return;}
+    ln(q1,q2);
+    if(ringD){var cx0=(b[3]-x0)*s,cy0=(y1-b[4])*s,mx=(p1[0]+p2[0])/2,my=(p1[1]+p2[1])/2;if((cx0-mx)*nx+(cy0-my)*ny<0){nx=-nx;ny=-ny;}var o2=0.19*s,sh=0.17*L;
+      ln([q1[0]+nx*o2+ux*sh,q1[1]+ny*o2+uy*sh],[q2[0]+nx*o2-ux*sh,q2[1]+ny*o2-uy*sh]);}
+  });
+  var g='<g stroke="'+col+'" stroke-width="'+Math.max(1.2,s/9).toFixed(2)+'" stroke-linecap="round" fill="none">'+out+'</g>';
+  A.forEach(function(a){var lb=(ion&&a.li)?a.li:a.l;if(!lb)return;var p=P(a),ch=ion&&a.li&&/[⁺⁻]/.test(a.li);
+    g+='<text x="'+p[0].toFixed(1)+'" y="'+p[1].toFixed(1)+'" text-anchor="middle" dominant-baseline="central" font-family="Arial,Helvetica,sans-serif" font-size="'+fs.toFixed(1)+'" font-weight="'+(ch?'700':'400')+'" fill="'+(ch?'var(--eqr)':col)+'" style="paint-order:stroke;stroke:var(--bg);stroke-width:3px;stroke-linejoin:round">'+lb+'</text>';});
+  return {w:(x1-x0)*s,h:(y1-y0)*s,svg:g};
+}
+function domForm(c,pH){var f=fNeutral(c,pH);return {ion:c.type!=='neutral'&&f<0.5,f:f};}
+function formText(c,pH){var d=molDef(c),f=fNeutral(c,pH);if(c.type==='neutral'||!d.grp)return 'neutral';var ion=f<0.5;return Math.round((ion?1-f:f)*100)+'% as '+d.grp[ion?1:0];}
+function molInline(c,ion,s){var m=molSVG(c,ion,s,c.col);return '<svg width="'+m.w.toFixed(0)+'" height="'+m.h.toFixed(0)+'" viewBox="0 0 '+m.w.toFixed(1)+' '+m.h.toFixed(1)+'" aria-hidden="true">'+m.svg+'</svg>';}
+function drawForms(id){var box=$(id);if(!box)return;var sm=window.innerWidth<480?8:12;
+  box.innerHTML=R.sorted.map(function(r){var df=domForm(r.c,ST.pH);return '<div class="fm" style="color:'+r.c.col+'">'+molInline(r.c,df.ion,sm)+'<b>'+r.c.s+'</b><span>'+formText(r.c,ST.pH)+'</span></div>';}).join('');}
+
 /* ================= chromatogram ================= */
 function drawChrom(){
   if(!$('v-chrom').classList.contains('on'))return;
   var svg=$('chrom'),W=Math.max(200,svg.clientWidth),H=Math.max(140,svg.clientHeight);svg.setAttribute('viewBox','0 0 '+W+' '+H);
   while(svg.firstChild)svg.removeChild(svg.firstChild);
-  var PL=14,PR=14,PT=30,PB=34;
+  var PL=14,PR=14,PB=34,sB=W<480?7.5:(H<300?8.5:(H>450&&W>=700?17:11)),capH=H<300?52:(H>450?124:74),cards=[],bandH=0;
+  R.sorted.forEach(function(r){var df=domForm(r.c,ST.pH),m=molSVG(r.c,df.ion,sB,r.c.col),nm=r.c.s,ft=formText(r.c,ST.pH),tw=Math.max(nm.length*6.6,ft.length*5.6);
+    var sc=Math.min(1,capH/m.h);cards.push({r:r,m:m,sc:sc,w:Math.max(m.w*sc,tw)+4,h:m.h*sc+26,nm:nm,ft:ft});bandH=Math.max(bandH,m.h*sc+26);});
+  var PT=Math.max(30,bandH+14);
   if(!R.list.length){svg.appendChild(el('text',{x:W/2,y:H/2,'text-anchor':'middle',fill:'var(--muted)','font-size':13},'Pick compounds in the Compounds tab'));return;}
   var tmax=Math.max(ST.tM*1.6,R.sorted[R.sorted.length-1].tR+5*R.sorted[R.sorted.length-1].s)*1.04;
   function X(t){return PL+t/tmax*(W-PL-PR);}
@@ -233,17 +296,24 @@ function drawChrom(){
   var all=[];for(i=0;i<=n;i++)all.push(ts[i]);R.list.forEach(function(r){for(var j=-3;j<=3;j++)all.push(r.tR+j*r.s*0.5);});all.sort(function(a,b){return a-b;});
   var d2='';all.forEach(function(t){if(t<0||t>tmax)return;var y=0;R.list.forEach(function(r){y+=gN(t,r.tR,r.s);});d2+=(d2?'L':'M')+X(t).toFixed(1)+' '+Y(y).toFixed(1);});
   svg.appendChild(el('path',{d:d2,fill:'none',stroke:'var(--navy)','stroke-width':2.2}));
-  /* labels: stagger rows to avoid overlap */
-  var rows=[[],[],[]];
-  R.sorted.forEach(function(r){var x=X(r.tR),y=Y(gN(r.tR,r.tR,r.s)+R.list.reduce(function(s2,o){return o===r?s2:s2+gN(r.tR,o.tR,o.s);},0)),txt=r.c.s,w=txt.length*6.4+6,row=0;
-    while(row<2&&rows[row].some(function(b){return Math.abs(b-x)<w;}))row++;rows[row].push(x);
-    var ly=Math.max(14+row*13,y-6-row*13);svg.appendChild(el('text',{x:x,y:ly,'text-anchor':'middle','font-size':11,'font-weight':'bold',fill:r.c.col,'class':'halo'},txt));});
-  if(R.worst&&R.worst.Rs<1.5){var a=R.worst.a,b=R.worst.b;svg.appendChild(el('text',{x:W-PR,y:14,'text-anchor':'end','font-size':11,fill:'var(--alert)','class':'halo'},a.c.s+' / '+b.c.s+': Rs '+R.worst.Rs.toFixed(2)));}
+  /* structure cards in a band above the peaks, spread out so they don't overlap, with leader lines */
+  var gap=6,left=2;cards.forEach(function(cd){cd.x=Math.max(left,X(cd.r.tR)-cd.w/2);left=cd.x+cd.w+gap;});
+  var right=W-2;for(var q=cards.length-1;q>=0;q--){var cd=cards[q];if(cd.x+cd.w>right)cd.x=right-cd.w;right=cd.x-gap;}
+  if(cards.length&&cards[0].x<2){var tot=cards.reduce(function(t,c2){return t+c2.w;},0)+gap*(cards.length-1),sq=Math.min(1,(W-4)/tot),xx=2;cards.forEach(function(c2){c2.x=xx;xx+=c2.w*sq+gap*sq;});}
+  cards.forEach(function(cd){
+    var r=cd.r,px=X(r.tR),apex=Y(gN(r.tR,r.tR,r.s)+R.list.reduce(function(s2,o){return o===r?s2:s2+gN(r.tR,o.tR,o.s);},0)),cx2=cd.x+cd.w/2,by=4+bandH;
+    svg.appendChild(el('line',{x1:cx2,y1:by-2,x2:px,y2:Math.max(apex-3,by+2),stroke:r.c.col,'stroke-width':1,'stroke-dasharray':'2 2',opacity:.8}));
+    var g=el('g',{transform:'translate('+(cx2-cd.m.w*cd.sc/2).toFixed(1)+','+(4+(bandH-26-cd.m.h*cd.sc)).toFixed(1)+') scale('+cd.sc.toFixed(3)+')'});g.innerHTML=cd.m.svg;svg.appendChild(g);
+    svg.appendChild(el('text',{x:cx2,y:by-14,'text-anchor':'middle','font-size':11,'font-weight':'bold',fill:r.c.col,'class':'halo'},cd.nm));
+    svg.appendChild(el('text',{x:cx2,y:by-2,'text-anchor':'middle','font-size':10,fill:'var(--muted)','class':'halo'},cd.ft));
+  });
+  if(R.worst&&R.worst.Rs<1.5){var a=R.worst.a,b=R.worst.b;svg.appendChild(el('text',{x:W-PR,y:PT+12,'text-anchor':'end','font-size':11,fill:'var(--alert)','class':'halo'},a.c.s+' / '+b.c.s+': Rs '+R.worst.Rs.toFixed(2)));}
 }
 /* ================= k vs pH ================= */
 var KG=null;
 function drawKpH(){
   if(!$('v-kph').classList.contains('on'))return;
+  drawForms('formsK');$('kphHint').style.top=($('formsK').offsetHeight+6)+'px';
   var svg=$('kph'),W=Math.max(200,svg.clientWidth),H=Math.max(140,svg.clientHeight);svg.setAttribute('viewBox','0 0 '+W+' '+H);
   while(svg.firstChild)svg.removeChild(svg.firstChild);
   var PL=40,PR=10,PT=W<480?36:24,PB=32,x0=1,x1=12,y0=-2,y1=2.5;
@@ -278,13 +348,20 @@ function drawNums(){
 }
 /* ================= close-up: molecules at the C18 surface + race ================= */
 var cm=$('cm'),cx=cm.getContext('2d'),CW=600,CH=300,ms=null,pal={};
-function readPal(){var cs=getComputedStyle(document.documentElement);['ink','muted','bg','panel','sta','film','support','rule'].concat(COMP.map(function(c,i){return 'c'+i;})).forEach(function(k){pal[k]=cs.getPropertyValue('--'+k).trim();});}
+function readPal(){IMGC={};var cs=getComputedStyle(document.documentElement);['ink','muted','bg','panel','sta','film','support','rule','eqr'].concat(COMP.map(function(c,i){return 'c'+i;})).forEach(function(k){pal[k]=cs.getPropertyValue('--'+k).trim();});}
 readPal();
 function sizeMicro(){var r=cm.getBoundingClientRect();if(!r.width||!r.height)return false;var d=Math.min(2,window.devicePixelRatio||1);CH=clamp(r.height,240,360);if(r.height/CH>1.25)CH=r.height/1.25;var sc=r.height/CH;CW=r.width/sc;cm.width=Math.round(r.width*d);cm.height=Math.round(r.height*d);cx.setTransform(d*sc,0,0,d*sc,0,0);return true;}
-var TAU_S=0.55,VFLOW=150,FLIP=6;
+var TAU_S=0.55,VFLOW=150,FLIP=6,IMGC={};
+function molImg(c,ion){
+  var key=c.id+'|'+c.type+'|'+ion;if(IMGC[key])return IMGC[key];
+  var m=molSVG(c,ion,9,c.col),svg=m.svg.replace(/var\(--([a-z0-9]+)\)/g,function(_,k){return pal[k]||'#888';});
+  var im=new Image();im.onload=function(){im.ok=true;if(!running&&view==='zoom')microDraw();};
+  im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="'+m.w.toFixed(0)+'" height="'+m.h.toFixed(0)+'" viewBox="0 0 '+m.w.toFixed(1)+' '+m.h.toFixed(1)+'">'+svg+'</svg>');
+  im.mw=m.w;im.mh=m.h;IMGC[key]=im;return im;
+}
 function microInit(){
-  var L=selected(),raceTop=8,trackH=Math.min(16,Math.max(10,Math.floor(70/Math.max(1,L.length))));
-  ms={m:[],t:0,raceTop:raceTop,trackH:trackH,top:raceTop+trackH*L.length+18,race:L.map(function(c){return {c:c,x:0};})};
+  var L=selected(),raceTop=8,big=CH>=330,trackH=big?Math.min(36,Math.max(22,Math.floor(150/Math.max(1,L.length)))):Math.min(16,Math.max(10,Math.floor(70/Math.max(1,L.length))));
+  ms={m:[],t:0,raceTop:raceTop,trackH:trackH,big:big,top:raceTop+trackH*L.length+18,race:L.map(function(c){return {c:c,x:0};})};
   ms.surf=CH-62;ms.bot=CH-8;
   var per=Math.max(10,Math.round(64/Math.max(1,L.length)));
   L.forEach(function(c){var k=kOf(c,ST.pH),fs=k/(1+k),f=fNeutral(c,ST.pH);for(var i=0;i<per;i++){var st=Math.random()<fs;ms.m.push({c:c,x:Math.random()*CW,y:st?ms.surf+6+Math.random()*(ms.bot-ms.surf-12):ms.top+6+Math.random()*(ms.surf-ms.top-12),s:st,n:st?true:Math.random()<f});}});
@@ -309,7 +386,10 @@ function microDraw(){
   /* race tracks */
   cx.font='11px Arial';
   ms.race.forEach(function(r,i){var y=ms.raceTop+i*ms.trackH+ms.trackH/2,col=pal['c'+COMP.indexOf(r.c)];cx.strokeStyle=pal.rule;cx.lineWidth=1;cx.beginPath();cx.moveTo(70,y);cx.lineTo(CW-12,y);cx.stroke();
-    cx.fillStyle=col;cx.textAlign='right';cx.fillText(r.c.s,64,y+4);cx.textAlign='left';cx.beginPath();cx.arc(70+Math.min(r.x,CW-82),y,Math.min(5,ms.trackH/2-1),0,Math.PI*2);cx.fill();});
+    cx.fillStyle=col;cx.textAlign='right';cx.fillText(r.c.s,64,y+4);cx.textAlign='left';var rx=70+Math.min(r.x,CW-82);
+    var im=ms.big?molImg(r.c,domForm(r.c,ST.pH).ion):null;
+    if(im&&im.ok){var hh=ms.trackH-2,ww=im.mw*hh/im.mh;cx.drawImage(im,rx-ww/2,y-hh/2,ww,hh);}
+    else{cx.beginPath();cx.arc(rx,y,Math.min(5,ms.trackH/2-1),0,Math.PI*2);cx.fill();}});
   cx.fillStyle=pal.muted;cx.textAlign='right';cx.fillText('the race down the column: average speed = flow/(1 + k)',CW-10,ms.top-5);cx.textAlign='left';
   /* phases */
   cx.fillStyle=pal.support;cx.fillRect(0,ms.top-2,CW,2);
@@ -379,13 +459,14 @@ function renderGroup(g,box){
   }else if(g==='cp'){
     COMP.forEach(function(c){
       var r=document.createElement('label');r.className='comp';
-      r.innerHTML='<input type="checkbox"'+(c.on?' checked':'')+'><i class="dot" style="background:'+c.col+'"></i><span class="nm">'+c.n+'<span class="meta">'+(c.custom?'set its type, pKa and hydrophobicity below':(c.type==='neutral'?'neutral':(c.type+', pKa '+c.pKa))+' · '+c.eq)+'</span></span>';
+      var th=c.type==='neutral'?molInline(c,false,8):(molInline(c,false,8)+'<span>⇌</span>'+molInline(c,true,8));
+      r.innerHTML='<input type="checkbox"'+(c.on?' checked':'')+'><i class="dot" style="background:'+c.col+'"></i><span class="nm">'+c.n+'<span class="meta">'+(c.custom?'set its type, pKa and hydrophobicity below':(c.type==='neutral'?'neutral':(c.type+', pKa '+c.pKa)))+'</span><span class="thumbs">'+th+'</span></span>';
       r.querySelector('input').addEventListener('change',function(){c.on=this.checked;update(true);});box.appendChild(r);
     });
     var cc=COMP[COMP.length-1],h=document.createElement('p');h.className='ptext';h.style.marginTop='10px';h.innerHTML='<b>Your compound</b>';box.appendChild(h);
     var tr=document.createElement('div');tr.className='row';tr.innerHTML='<div class="top"><span>Type</span></div>';var chips=document.createElement('div');chips.style.cssText='display:flex;gap:6px;margin-top:4px';
     ['acid','base','neutral'].forEach(function(t){var b=document.createElement('button');b.type='button';b.className='btn';b.textContent=t;b.setAttribute('aria-pressed',cc.type===t?'true':'false');if(cc.type===t){b.style.background='var(--navy)';b.style.color='var(--bg)';}
-      b.addEventListener('click',function(){cc.type=t;if(t==='neutral')cc.pKa2=cc.pKa;cc.on=true;buildPanel();update(true);});chips.appendChild(b);});tr.appendChild(chips);box.appendChild(tr);
+      b.addEventListener('click',function(){cc.type=t;cc.on=true;buildPanel();update(true);});chips.appendChild(b);});tr.appendChild(chips);box.appendChild(tr);
     if(cc.type!=='neutral')slider(box,{id:'cpKa',label:'pKa',min:1,max:12,step:0.1,get:function(){return cc.pKa;},set:function(v){cc.pKa=Math.round(v*10)/10;cc.on=true;},fmt:function(v){return v.toFixed(1);}});
     slider(box,{id:'clkw',label:'Hydrophobicity (log k in pure water)',min:0.5,max:4.5,step:0.1,get:function(){return cc.lkw;},set:function(v){cc.lkw=v;cc.on=true;},fmt:function(v){return v.toFixed(1);}});
   }else{
@@ -411,9 +492,9 @@ MQall.addEventListener('change',buildPanel);
 var view='chrom';
 function setView(v){view=v;document.querySelectorAll('.seg [data-view]').forEach(function(b){b.setAttribute('aria-selected',b.getAttribute('data-view')===v?'true':'false');});
   ['chrom','kph','zoom','nums'].forEach(function(n){$('v-'+n).classList.toggle('on',n===v);});
-  if(v==='zoom'){if(sizeMicro()){microInit();microDraw();}capText();}drawChrom();drawKpH();drawNums();}
+  if(v==='zoom'){drawForms('formsZ');if(sizeMicro()){microInit();microDraw();}capText();}drawChrom();drawKpH();drawNums();}
 document.querySelectorAll('.seg [data-view]').forEach(function(b){b.addEventListener('click',function(){setView(b.getAttribute('data-view'));});});
-function update(reinit){compute();updateLive();refreshEq();drawChrom();drawKpH();drawNums();updateWarn();if(view==='zoom'){if(reinit&&sizeMicro())microInit();capText();if(!running)microDraw();}}
+function update(reinit){compute();updateLive();refreshEq();if(view==='zoom')drawForms('formsZ');drawChrom();drawKpH();drawNums();updateWarn();if(view==='zoom'){if(reinit&&sizeMicro())microInit();capText();if(!running)microDraw();}}
 var running=!window.matchMedia('(prefers-reduced-motion: reduce)').matches,last=0;
 function loop(ts){if(!running)return;var dt=last?Math.min(0.05,(ts-last)/1000):0;last=ts;if(!document.hidden&&view==='zoom'){microStep(dt);microDraw();}requestAnimationFrame(loop);}
 function setPlay(on){running=on;$('play').textContent=on?'Pause':'Play';$('play').setAttribute('aria-pressed',on?'false':'true');if(on){last=0;requestAnimationFrame(loop);}}
